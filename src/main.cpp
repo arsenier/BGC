@@ -3,14 +3,15 @@
 
 void setup()
 {
+  pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
 
-  NOVAC(hello_job, 10);
-  UPDATE_HIGHEST_JOB();
+  novac(hello_job, 10);
+  update_highest_job();
 }
 
 void loop()
 {
   current_job->PC(current_job);
-  UPDATE_HIGHEST_JOB();
+  update_highest_job();
 }
