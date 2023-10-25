@@ -7,6 +7,8 @@ void hello_job_2(Job_t *j);
 
 void hello_job(Job_t *j)
 {
+    Serial.println(j->state);
+
     switch (j->state)
     {
     case 0:
