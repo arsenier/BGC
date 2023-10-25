@@ -23,20 +23,32 @@ void hello_job(Job_t *j)
 
         // novac(hello_job_2, 12);
         j->state = 3;
-        job_sleep_for_time(j, 500);
+        job_sleep_for_time(j, 1000);
         return;
     case 3:
         digitalWrite(13, LOW);
 
         // novac(hello_job_2, 12);
-        j->state = 2;
-        job_sleep_for_time(j, 500);
+        j->state = 4;
+        job_sleep_for_time(j, 1000);
         return;
-        // DO SMTH
-        break;
+    case 10:
+        digitalWrite(13, HIGH);
+
+        // novac(hello_job_2, 12);
+        j->state = 11;
+        job_sleep_for_time(j, 2000);
+        return;
+    case 11:
+        digitalWrite(13, LOW);
+
+        // novac(hello_job_2, 12);
+        j->state = 10;
+        job_sleep_for_time(j, 2000);
+        return;
     default:
-        // ERROR HANDLER
-        break;
+        os_error();
+        return;
     }
 }
 
@@ -68,7 +80,7 @@ void hello_job_2(Job_t *j)
         job_end(j);
         return;
     default:
-        // ERROR HANDLER
+        os_error();
         break;
     }
 }

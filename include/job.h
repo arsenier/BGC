@@ -52,6 +52,10 @@ Job_t* get_highest_job();
  */
 void update_highest_job();
 
+void update_parity(Job_t *j);
+
+bool check_parity(Job_t *j);
+
 /**
  * @brief Создать задачу
  * 
@@ -59,6 +63,8 @@ void update_highest_job();
  * @param priority Приоритет
  */
 void novac(void (*PC)(Job_t*), char priority);
+
+void revac(Job_t *j);
 
 /**
  * @brief Изменить приоритет задачи
@@ -102,5 +108,7 @@ void job_wake_all_by_time();
  * @param j 
  */
 void job_end(Job_t *j);
+
+void os_error();
 
 #endif // JOB_H

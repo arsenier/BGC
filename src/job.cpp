@@ -55,6 +55,25 @@ void update_highest_job()
     current_job = get_highest_job();
 }
 
+void update_parity(Job_t *j)
+{
+    j->parity_byte = 0;
+    for(size_t i = 0; i < sizeof(j) - 1; i++)
+    {
+        j->parity_byte ^= *((char*)j + i);
+    }
+}
+
+bool check_parity(Job_t *j)
+{
+    char parity_check = 0;
+    for(size_t i = 0; i < sizeof(j); i++)
+    {
+        parity_check ^= *((char*)j + i);
+    }
+    return !parity_check;
+}
+
 void novac(void (*PC)(Job_t*), char priority)
 {
     Job_t *j = get_unused_job();
@@ -70,6 +89,12 @@ void novac(void (*PC)(Job_t*), char priority)
     j->PC = PC;
     j->priority = priority;
     j->state = 0;
+}
+
+void revac(Job_t *j)
+{
+    if(j->state)
+        j->state = 10;
 }
 
 void job_change_prio(Job_t *j, char new_priority)
@@ -108,4 +133,9 @@ void job_wake_all_by_time()
 void job_end(Job_t *j)
 {
     j->priority = 0;
+}
+
+void os_error()
+{
+    while(1);
 }
