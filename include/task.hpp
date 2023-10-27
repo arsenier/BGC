@@ -2,7 +2,7 @@
 #define TASK_H
 
 #include <inttypes.h>
-#include "kernel.h"
+#include "kernel.hpp"
 
 #define WAITLIST_SIZE 15
 

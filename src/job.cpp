@@ -1,24 +1,19 @@
-#include "job.h"
+#include "job.hpp"
 #include <Arduino.h>
 #include <inttypes.h>
+#include "kernel.hpp"
 
-namespace Job
-{
-
-Job_t core_set[JOB_MAX_COUNT];
-Job_t *current_job;
+// namespace Job
+// {
 
 void idle_proc(Job_t *j)
 {
-    return;
+    while (1)
+    {
+        os_yield();
+    }
+    
 }
-
-Job_t idle_job =
-{
-    .priority = 1,
-    .pid = UINT8_MAX,
-    .worker = &idle_proc
-};
 
 
 Job_t* job_get_unused()
@@ -56,26 +51,9 @@ void job_update_highest()
     current_job = job_get_highest();
 }
 
-void novac(job_worker worker, char priority)
-{
-    Job_t *j = job_get_unused();
-    if(j == nullptr)
-    {
-        os_error();
-    }
-
-    j->worker = worker;
-    j->priority = priority;
-}
-
 void job_change_prio(Job_t *j, char new_priority)
 {
     j->priority = new_priority;
-}
-
-void job_change_worker(Job_t *j, job_worker new_worker)
-{
-    j->worker = new_worker;
 }
 
 void job_sleep(Job_t *j)
@@ -93,9 +71,4 @@ void job_wake(Job_t *j)
     j->priority &= 0x7F; // reset sign bit
 }
 
-void job_end(Job_t *j)
-{
-    j->priority = 0;
-}
-
-}
+// }

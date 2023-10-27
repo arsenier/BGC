@@ -2,30 +2,38 @@
 #define JOB_H
 
 #include <inttypes.h>
-#include "kernel.h"
 
 #define JOB_MEM 8
 #define JOB_MAX_COUNT 7
+#define STACK_SIZE 128
 
-namespace Job
-{
+/**
+ * @brief Стек для простоя - минимальный размер стека для процесса
+ * необходимый для смены контекста:
+ * 
+ * 2 байта - адрес возврата
+ * 2 байта - адрес обработчика процесса
+ * 32 байта - для сохранения регистров r0..r31
+ * 1 байт для сохранения регистра SREG 
+ */
+#define IDLE_STACK_SIZE (2+2+32+1)
 
+// namespace Job
+// {
+
+typedef int8_t PRIO;
+typedef uint8_t PID;
 struct Job_t;
 typedef struct Job_t Job_t;
 typedef void (*job_worker)(Job_t* j);
 
 struct Job_t
 {
-    int8_t priority; // !< Приоритет данного процесса
-    uint8_t pid; // !< Идентификатор процесса
-    job_worker worker; // !< Указатель на обработчик процесса
+    PRIO priority; // !< Приоритет данного процесса
+    PID pid; // !< Идентификатор процесса
+    uint16_t stackptr;
     uint8_t m[JOB_MEM]; // !< Локальная память процесса
 };
-
-extern Job_t core_set[JOB_MAX_COUNT];
-extern Job_t idle_job;
-
-extern Job_t *current_job;
 
 /**
  * @brief Обработчик пустой задачи
@@ -54,28 +62,12 @@ Job_t* job_get_highest();
 void job_update_highest();
 
 /**
- * @brief Создать задачу
- * 
- * @param PC Функция-обработчик
- * @param priority Приоритет
- */
-void novac(void (*PC)(Job_t*), char priority);
-
-/**
  * @brief Изменить приоритет задачи
  * 
  * @param j 
  * @param new_priority Новый приоритет
  */
 void job_change_prio(Job_t *j, char new_priority);
-
-/**
- * @brief Изменить обработчик процесса
- * 
- * @param j 
- * @param new_worker 
- */
-void job_change_worker(Job_t *j, job_worker new_worker);
 
 /**
  * @brief Усыпить задачу до пробуждения
@@ -99,13 +91,6 @@ void job_sleep_for_time(Job_t *j, uint32_t time);
  */
 void job_wake(Job_t *j);
 
-/**
- * @brief Завершить задачу
- * 
- * @param j 
- */
-void job_end(Job_t *j);
-
-}
+// }
 
 #endif // JOB_H
