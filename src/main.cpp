@@ -29,43 +29,27 @@ void setup()
   pinMode(12, OUTPUT);
   pinMode(13, OUTPUT);
 
-  if(check_if_hot_start () || true)
-  {
-    bool parity_good = true;
-    for(int i = 0; i < JOB_MAX_COUNT; i++)
-    {
-      parity_good &= check_parity(&jobs[i]);
-    }
-    if(parity_good)
-    {
-      Serial.println("Recovery");
-      for(int i = 0; i < JOB_MAX_COUNT; i++)
-      {
-        revac(&jobs[i]);
-      }
-      return;
-    }
-  }
+  Task::waitlist_init();
 
-  novac(hello_job, 10);
-  /* Возможные значения для константы
-    WDTO_15MS
-    WDTO_30MS
-    WDTO_60MS
-    WDTO_120MS
-    WDTO_250MS
-    WDTO_500MS
-    WDTO_1S
-    WDTO_2S
-    WDTO_4S
-    WDTO_8S
-  */
+  Job::novac(job_do_stuff_with_indication, 10);
 }
+
+volatile uint32_t gtime;
+volatile uint32_t counter = 0;
 
 void loop()
 {
-  update_highest_job();
-  current_job->PC(current_job);
-  update_parity(current_job);
+  gtime = millis();
+  counter++;
+
+  Task::check_waitlist();
+  Job::job_update_highest();
+
+  if(Job::current_job->worker == nullptr)
+  {
+    os_error();
+  }
+  Job::current_job->worker(Job::current_job);
+  
   wdt_reset();
 }

@@ -2,7 +2,10 @@
 #include <Arduino.h>
 #include <inttypes.h>
 
-Job_t jobs[JOB_MAX_COUNT];
+namespace Job
+{
+
+Job_t core_set[JOB_MAX_COUNT];
 Job_t *current_job;
 
 void idle_proc(Job_t *j)
@@ -12,89 +15,57 @@ void idle_proc(Job_t *j)
 
 Job_t idle_job =
 {
-    .PC = &idle_proc,
-    .wakeup_time = 0,
+    .priority = 1,
     .pid = UINT8_MAX,
-    .priority = 1
+    .worker = &idle_proc
 };
 
 
-Job_t* get_unused_job()
+Job_t* job_get_unused()
 {
     for(char i = 0; i < JOB_MAX_COUNT; i++)
-        if(!jobs[i].priority)
-            return &jobs[i];
+        if(!core_set[i].priority)
+            return &core_set[i];
     return nullptr;
 }
 
-Job_t* get_highest_job()
+Job_t* job_get_highest()
 {
     char last_idx = current_job->pid;
     char max_idx = last_idx;
     char max_prio = 0;
     for(char i = last_idx + 1; i < JOB_MAX_COUNT; i++)
-        if(jobs[i].priority > max_prio)
+        if(core_set[i].priority > max_prio)
         {
             max_idx = i;
-            max_prio = jobs[i].priority;
+            max_prio = core_set[i].priority;
         }
     for(char i = 0; i <= last_idx; i++)
-        if(jobs[i].priority > max_prio)
+        if(core_set[i].priority > max_prio)
         {
             max_idx = i;
-            max_prio = jobs[i].priority;
+            max_prio = core_set[i].priority;
         }
     if(!max_prio)
         return &idle_job;
-    return &jobs[max_idx];
+    return &core_set[max_idx];
 }
 
-void update_highest_job()
+void job_update_highest()
 {
-    job_wake_all_by_time();
-    current_job = get_highest_job();
+    current_job = job_get_highest();
 }
 
-void update_parity(Job_t *j)
+void novac(job_worker worker, char priority)
 {
-    j->parity_byte = 0;
-    for(size_t i = 0; i < sizeof(j) - 1; i++)
-    {
-        j->parity_byte ^= *((char*)j + i);
-    }
-}
-
-bool check_parity(Job_t *j)
-{
-    char parity_check = 0;
-    for(size_t i = 0; i < sizeof(j); i++)
-    {
-        parity_check ^= *((char*)j + i);
-    }
-    return !parity_check;
-}
-
-void novac(void (*PC)(Job_t*), char priority)
-{
-    Job_t *j = get_unused_job();
+    Job_t *j = job_get_unused();
     if(j == nullptr)
     {
-        for (uint8_t i = 0; i < JOB_MAX_COUNT; i++)
-        {
-            job_end(&jobs[i]);
-        }
-        return;
+        os_error();
     }
 
-    j->PC = PC;
+    j->worker = worker;
     j->priority = priority;
-    j->state = 0;
-}
-
-void revac(Job_t *j)
-{
-    if(j->state)
-        j->state = 10;
 }
 
 void job_change_prio(Job_t *j, char new_priority)
@@ -102,16 +73,19 @@ void job_change_prio(Job_t *j, char new_priority)
     j->priority = new_priority;
 }
 
+void job_change_worker(Job_t *j, job_worker new_worker)
+{
+    j->worker = new_worker;
+}
+
 void job_sleep(Job_t *j)
 {
     j->priority |= 0x80; // set sign bit
-    j->wakeup_time = UINT32_MAX;
 }
 
 void job_sleep_for_time(Job_t *j, uint32_t time)
 {
-    j->priority |= 0x80; // set sign bit
-    j->wakeup_time = millis() + time;
+    // TODO сделать через отложенную задачу
 }
 
 void job_wake(Job_t *j)
@@ -119,23 +93,9 @@ void job_wake(Job_t *j)
     j->priority &= 0x7F; // reset sign bit
 }
 
-void job_wake_all_by_time()
-{
-    uint32_t time = millis();
-    for(uint8_t i = 0; i < JOB_MAX_COUNT; i++)
-    {
-        if(jobs[i].priority & 0x80 &&
-            time > jobs[i].wakeup_time)
-            job_wake(&jobs[i]);
-    }
-}
-
 void job_end(Job_t *j)
 {
     j->priority = 0;
 }
 
-void os_error()
-{
-    while(1);
 }

@@ -2,26 +2,27 @@
 #define JOB_H
 
 #include <inttypes.h>
+#include "kernel.h"
 
-#define JOB_MEM 16
+#define JOB_MEM 8
 #define JOB_MAX_COUNT 7
+
+namespace Job
+{
 
 struct Job_t;
 typedef struct Job_t Job_t;
-typedef void (*job_cb)(Job_t* j);
+typedef void (*job_worker)(Job_t* j);
 
 struct Job_t
 {
-    job_cb PC; // !< Указатель на обработчик задачи
-    uint32_t wakeup_time; // !< Для временной задержки
-    uint8_t pid; // !< ID задачи
-    int8_t priority; // !< Приоритет задачи
-    uint8_t state; // !< Текущее состояние
-    uint8_t m[JOB_MEM]; // !< Локальная память задачи
-    uint8_t parity_byte; // !< Байт четности
+    int8_t priority; // !< Приоритет данного процесса
+    uint8_t pid; // !< Идентификатор процесса
+    job_worker worker; // !< Указатель на обработчик процесса
+    uint8_t m[JOB_MEM]; // !< Локальная память процесса
 };
 
-extern Job_t jobs[JOB_MAX_COUNT];
+extern Job_t core_set[JOB_MAX_COUNT];
 extern Job_t idle_job;
 
 extern Job_t *current_job;
@@ -38,23 +39,19 @@ void idle_proc(Job_t *j);
  * 
  * @return Job_t* 
  */
-Job_t* get_unused_job();
+Job_t* job_get_unused();
 
 /**
  * @brief Получить указатель на активную задачу с наивысшим приоритетом
  * 
  * @return Job_t* 
  */
-Job_t* get_highest_job();
+Job_t* job_get_highest();
 
 /**
  * @brief Обновить следующую для выполнения задачу
  */
-void update_highest_job();
-
-void update_parity(Job_t *j);
-
-bool check_parity(Job_t *j);
+void job_update_highest();
 
 /**
  * @brief Создать задачу
@@ -64,8 +61,6 @@ bool check_parity(Job_t *j);
  */
 void novac(void (*PC)(Job_t*), char priority);
 
-void revac(Job_t *j);
-
 /**
  * @brief Изменить приоритет задачи
  * 
@@ -73,6 +68,14 @@ void revac(Job_t *j);
  * @param new_priority Новый приоритет
  */
 void job_change_prio(Job_t *j, char new_priority);
+
+/**
+ * @brief Изменить обработчик процесса
+ * 
+ * @param j 
+ * @param new_worker 
+ */
+void job_change_worker(Job_t *j, job_worker new_worker);
 
 /**
  * @brief Усыпить задачу до пробуждения
@@ -97,18 +100,12 @@ void job_sleep_for_time(Job_t *j, uint32_t time);
 void job_wake(Job_t *j);
 
 /**
- * @brief Разбудить все неактивные задачи с прошедшим временем сна
- * 
- */
-void job_wake_all_by_time();
-
-/**
  * @brief Завершить задачу
  * 
  * @param j 
  */
 void job_end(Job_t *j);
 
-void os_error();
+}
 
 #endif // JOB_H

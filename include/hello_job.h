@@ -2,88 +2,45 @@
 #define HELLO_JOB_H
 
 #include "job.h"
+#include "task.h"
 
-void hello_job_2(Job_t *j);
-
-void hello_job(Job_t *j)
+void task_enable_LED(Task::Task_t *t)
 {
-    Serial.println(j->state);
-
-    switch (j->state)
-    {
-    case 0:
-        j->m[0] = 1;
-        j->state += 1;
-        break;
-    case 1:
-        j->m[0] *= 2;
-        j->state += 1;
-        break;
-    case 2:
-        j->m[0] += 3;
-        digitalWrite(13, HIGH);
-
-        // novac(hello_job_2, 12);
-        j->state = 3;
-        job_sleep_for_time(j, 1000);
-        return;
-    case 3:
-        digitalWrite(13, LOW);
-
-        // novac(hello_job_2, 12);
-        j->state = 4;
-        job_sleep_for_time(j, 1000);
-        return;
-    case 10:
-        digitalWrite(13, HIGH);
-
-        // novac(hello_job_2, 12);
-        j->state = 11;
-        job_sleep_for_time(j, 2000);
-        return;
-    case 11:
-        digitalWrite(13, LOW);
-
-        // novac(hello_job_2, 12);
-        j->state = 10;
-        job_sleep_for_time(j, 2000);
-        return;
-    default:
-        os_error();
-        return;
-    }
+    digitalWrite(13, HIGH);
+    Serial.print(millis());
+    Serial.println("LED ON");
 }
 
-void hello_job_2(Job_t *j)
+void task_disable_LED(Task::Task_t *t)
 {
-    switch (j->state)
+    digitalWrite(13, LOW);
+    Serial.print(millis());
+    Serial.println("LED OFF");
+}
+
+void job_do_stuff_with_indication(Job::Job_t *j)
+{
+    static int state = 0;
+    static uint32_t time0 = millis();
+
+    switch (state)
     {
-    case 0:
-        j->m[0] = 1;
-        j->state += 1;
-        break;
+    case 0: // init
+        if(millis() > time0 + 500)
+        {
+            task_create(task_enable_LED, 0);
+            task_create(task_disable_LED, 600);
+            task_create(task_enable_LED, 800);
+            task_create(task_disable_LED, 1600);
+            state++;
+        }
+        return;
     case 1:
-        j->m[0] *= 2;
-        j->state += 1;
-        break;
-    case 2:
-        j->m[0] += 3;
-        digitalWrite(12, HIGH);
-        j->state = 3;
-        job_sleep_for_time(j, 300);
-        return;
-    case 3:
-        digitalWrite(12, LOW);
-        j->state = 4;
-        job_sleep_for_time(j, 100);
-        return;
-        // DO SMTH
-    case 4:
         job_end(j);
         return;
     default:
         os_error();
-        break;
+        return;
     }
 }
 
