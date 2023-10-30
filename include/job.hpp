@@ -4,19 +4,6 @@
 #include <inttypes.h>
 
 #define JOB_MEM 8
-#define JOB_MAX_COUNT 7
-#define STACK_SIZE 128
-
-/**
- * @brief Стек для простоя - минимальный размер стека для процесса
- * необходимый для смены контекста:
- * 
- * 2 байта - адрес возврата
- * 2 байта - адрес обработчика процесса
- * 32 байта - для сохранения регистров r0..r31
- * 1 байт для сохранения регистра SREG 
- */
-#define IDLE_STACK_SIZE (2+2+32+1)
 
 // namespace Job
 // {
@@ -31,8 +18,9 @@ struct Job_t
 {
     PRIO priority; // !< Приоритет данного процесса
     PID pid; // !< Идентификатор процесса
-    uint16_t stackptr;
+    uintptr_t stackptr;
     uint8_t m[JOB_MEM]; // !< Локальная память процесса
+    uint8_t parity;
 };
 
 /**

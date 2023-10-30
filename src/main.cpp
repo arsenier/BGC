@@ -31,11 +31,18 @@ void setup()
 
   Task::waitlist_init();
 
+  int a = 0;
+  while(millis() < 2)
+  {
+    Serial.print(a++);
+    Serial.println(millis());
+  }
+
   os_init();
   novac(job_do_stuff_with_indication, 10);
   novac(job2, 10);
 
-  os_leave_homeland();
+  // idle_proc(nullptr);
 }
 
 volatile uint32_t gtime;
@@ -43,18 +50,22 @@ volatile uint32_t counter = 0;
 
 void loop()
 {
-  // gtime = millis();
-  // counter++;
-
-  // Task::check_waitlist();
-  // job_update_highest();
-
-  // if(current_job->worker == nullptr)
-  // {
-  //   os_error();
-  // }
-  // current_job->worker(current_job);
-  
-  // wdt_reset();
-  // os_yield();
+  Serial.println("HERE WE GO");
+  os_leave_homeland();
 }
+
+// int main(void)
+// {
+// 	// init();
+
+// 	// initVariant();
+	
+// 	setup();
+    
+//   os_leave_homeland();
+// 	// for (;;) {
+// 	// 	if (serialEventRun) serialEventRun();
+// 	// }
+        
+// 	return 0;
+// }

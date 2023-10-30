@@ -8,8 +8,20 @@
 
 void idle_proc(Job_t *j)
 {
+    Serial.println("Entering idle");
+
+    uint32_t timer = 0;
+
+    // os_error();
+
     while (1)
     {
+        if(millis() - timer >= 1)
+        {
+            Serial.println(millis());
+            timer = millis();
+        }
+		if (serialEventRun) serialEventRun();
         os_yield();
     }
     
@@ -49,6 +61,10 @@ Job_t* job_get_highest()
 void job_update_highest()
 {
     current_job = job_get_highest();
+	if(current_job->parity != calc_parity(current_job))
+	{
+		os_error();
+	}
 }
 
 void job_change_prio(Job_t *j, char new_priority)

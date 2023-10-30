@@ -25,10 +25,12 @@ void job_do_stuff_with_indication(Job_t *j)
 
     while (true)
     {
+        Serial.println("job1");
+
         switch (state)
         {
         case 0: // init
-            if(millis() > time0 + 1)
+            if(millis() > time0 + 100)
             {
                 task_create(task_enable_LED, 0);
                 task_create(task_disable_LED, 600);
@@ -53,6 +55,7 @@ void job2(Job_t *j)
     while(true)
     {
         a++;
+        Serial.println("job2");
         if(job_get_highest() == current_job)
         {
             return;
