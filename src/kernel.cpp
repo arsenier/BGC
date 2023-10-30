@@ -86,26 +86,6 @@ uint16_t yield_Y_reg;
 void os_yield()
 {
 	cli();
-	/**
-	 * @brief Забирает сохраненное значение Y (r29:r28) со стека 
-	 * чтобы их не потерять во время манипуляций с указателем стека
-	 * 
-0000067e <_Z8os_yieldv>:
- 67e:	cf 93       	push	r28
- 680:	df 93       	push	r29
- 682:	f8 94       	cli
- 684:	9f 91       	pop	r25
- 686:	8f 91       	pop	r24
- 688:	90 93 4d 02 	sts	0x024D, r25	; 0x80024d <yield_Y_reg+0x1>
- 68c:	80 93 4c 02 	sts	0x024C, r24	; 0x80024c <yield_Y_reg>
-	 * 
-	 */
-	// asm volatile(
-	// 	"pop %B0\n\t"
-	// 	"pop %A0\n\t"
-	// 	: "=r" (yield_Y_reg)
-	// 	:
-	// );
 	SM_SAVE_CONTEXT()
 
 	// Save stack of current thread
@@ -125,26 +105,6 @@ void os_yield()
 	SP = current_job->stackptr;
 	
 	SM_RESTORE_CONTEXT()
-	/**
-	 * @brief Возвращает значение регистра Y (r29:r28) на стек
-	 * 
- 766:	80 91 58 02 	lds	r24, 0x0258	; 0x800258 <yield_Y_reg>
- 76a:	90 91 59 02 	lds	r25, 0x0259	; 0x800259 <yield_Y_reg+0x1>
- 76e:	8f 93       	push	r24
- 770:	9f 93       	push	r25
- 772:	90 93 59 02 	sts	0x0259, r25	; 0x800259 <yield_Y_reg+0x1>
- 776:	80 93 58 02 	sts	0x0258, r24	; 0x800258 <yield_Y_reg>
- 77a:	78 94       	sei
- 77c:	df 91       	pop	r29
- 77e:	cf 91       	pop	r28
- 780:	08 95       	ret
-	 * 
-	 */
-	// asm volatile(
-	// 	"push %A0\n\t"
-	// 	"push %B0\n\t"
-	// 	: "+r" (yield_Y_reg)
-	// );
 	sei();
 }
 
@@ -154,6 +114,14 @@ void os_leave_homeland()
 	asm("cli");
 	SP = current_job->stackptr;
 	SM_RESTORE_CONTEXT();
+	/**
+	 * @brief Забирает два значения "регистра Y" для инициализации работы ОС
+	 * 
+	 * @details При вызове первого процесса регистр Y на стек не сохранялся и не будет
+	 * читаться соответственно. Поэтому нам надо самостоятельно забрать эти два байта со стека.
+	 * Y сохраняется только при вызове yield (в смысле работы со стеком процесса)
+	 * 
+	 */
 	asm(
 		"pop __tmp_reg__\n\t"
 		"pop __tmp_reg__"
