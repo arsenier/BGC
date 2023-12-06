@@ -1,0 +1,3 @@
+[submodule "lib/gshell"]
+	path = lib/gshell
+	url = git@github.com:yarmolinskiyam/gshell.git
