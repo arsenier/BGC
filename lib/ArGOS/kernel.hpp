@@ -6,6 +6,7 @@
 #include "job.hpp"
 #include "task.hpp"
 #include "argos_defines.h"
+#include "gshell.h"
 
 namespace ArGOS
 {
@@ -22,11 +23,13 @@ extern Job_t *current_job;
 /*!v Буфер для хранения указателя на стек при работе с прерываниями */
 volatile extern uintptr_t saved_SP;
 
+#define os_error(error_code) {glog_ffl(GLOG_FATAL); os_error_handler(error_code);}
+
 /**
  * @brief Зарегистрировать ошибку ОС
  * 
  */
-void os_error(os_error_t error_code);
+void os_error_handler(os_error_t error_code);
 
 /**
  * @brief Инициализировать стек процесса

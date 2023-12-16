@@ -2,6 +2,10 @@
 #include "Arduino.h"
 #include "kernel.hpp"
 
+WEAK void typer_control_loop(){}
+
+WEAK void typer_drivers(){}
+
 namespace ArGOS
 {
 
@@ -38,10 +42,6 @@ void typer_waitlist()
 {
     ArGOS::check_waitlist();
 }
-
-WEAK void typer_control_loop(){}
-
-WEAK void typer_drivers(){}
 
 ISR(TIMER0_COMPB_vect, ISR_NOBLOCK)
 {

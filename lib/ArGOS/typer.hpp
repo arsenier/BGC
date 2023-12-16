@@ -21,6 +21,8 @@ void typer_inc();
  */
 void typer_waitlist();
 
+} // namespace ArGOS
+
 /**
  * @brief Функция алгоритма управления
  */
@@ -30,7 +32,5 @@ void typer_control_loop(void);
  * @brief Функция взаимодействия с периферией
  */
 void typer_drivers(void);
-
-} // namespace ArGOS
 
 #endif // TYPER_HPP

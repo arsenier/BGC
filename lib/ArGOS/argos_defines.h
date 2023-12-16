@@ -17,8 +17,8 @@
 /*================================*/
 // Coreset memory settings
 
-#define JOB_MAX_COUNT 7
-#define STACK_SIZE 128
+#define JOB_MAX_COUNT 1
+#define STACK_SIZE 256
 
 /**
  * @brief Стек для простоя - минимальный размер стека для процесса
