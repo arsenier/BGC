@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include "job.hpp"
 #include "typer.hpp"
+#include "HexDump.hpp"
 
 namespace ArGOS
 {
@@ -141,7 +142,11 @@ void os_yield()
 
     os_stack_select_garbage();
 
-    glog_info("")
+    // Serial.println();
+    // for(int i = 0; i < 4; i++)
+    // {
+    //     HexDump(Serial, &stack[0] + i*64, 64);
+    // }
 
     current_job->parity = calc_parity(current_job);
 

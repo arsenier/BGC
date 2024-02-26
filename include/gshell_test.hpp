@@ -100,12 +100,16 @@ gshell_cmd_t gCmdArr[] =
 void gshell_test(ArGOS::Job_t *j)
 {
     UNUSED(j);
+	
+    // glog_ffl(GLOG_INFO);
+    ArGOS::os_yield();
 
     // Initialising gshell - passing over the function pointer to print a character,
     // - not passing over a function to get the milliseconds tick in uint32_t
     gshell_init(&glue_putchar, NULL);
 
-    // ArGOS::os_yield();
+    // glog_ffl(GLOG_INFO);
+    ArGOS::os_yield();
 
     // Enabling the terminal promt
     gshell_setPromt(1);
@@ -120,7 +124,13 @@ void gshell_test(ArGOS::Job_t *j)
         glog_info("Registered shell command '%s' with the ID %" PRIi8,
                 cmd_name_buff, gshell_register_cmd(&gCmdArr[u8CmdsToRegister]));
     }
-    // ArGOS::os_yield();
+    glog_ffl(GLOG_INFO);
+    glog_ffl(GLOG_OK);
+    glog_ffl(GLOG_NORMAL);
+    glog_ffl(GLOG_WARN);
+    glog_ffl(GLOG_ERROR);
+    glog_ffl(GLOG_FATAL);
+    ArGOS::os_yield();
 
     glog_ok("Program initialised.");
 
@@ -133,7 +143,9 @@ void gshell_test(ArGOS::Job_t *j)
         while(!Serial.available())
         // while(true)
         {
+            // glog_ffl(GLOG_INFO);
             ArGOS::os_yield();
+            // os_error(ArGOS::OS_OK);
         }
 
         char c = Serial.read();

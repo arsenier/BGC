@@ -13,7 +13,7 @@ void typer_drivers()
 
 void setup()
 {
-  wdt_enable(WDTO_500MS);
+  // wdt_enable(WDTO_500MS);
 
   Serial.begin(9600);
   Serial.println("Init");
