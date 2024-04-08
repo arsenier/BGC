@@ -13,7 +13,9 @@ void idle_proc(Job_t *j)
 
     while (1)
     {
-        os_yield();
+        // delay(100);
+        digitalWrite(13, millis() % 500);
+        // os_yield();
     }
 }
 

@@ -30,8 +30,8 @@
  * 32 байта - для сохранения регистров r0..r31
  * 1 байт для сохранения регистра SREG 
  */
-#define IDLE_STACK_SIZE (2+2+2+32+1)
-#define EXECUTOR_STACK_SIZE 64
+#define IDLE_STACK_SIZE (2+2+2+32+1+64)
+#define EXECUTOR_STACK_SIZE 256
 
 #define JOB_MEM 8
 

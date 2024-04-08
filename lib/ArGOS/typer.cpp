@@ -43,34 +43,34 @@ WEAK void typer_control_loop(){}
 
 WEAK void typer_drivers(){}
 
-ISR(TIMER0_COMPB_vect, ISR_NOBLOCK)
-{
-    ArGOS::os_stack_save_SP();
-    ArGOS::os_stack_select_garbage();
+// ISR(TIMER0_COMPB_vect, ISR_NOBLOCK)
+// {
+//     ArGOS::os_stack_save_SP();
+//     ArGOS::os_stack_select_garbage();
 
-    uint32_t time_check = micros();
+//     uint32_t time_check = micros();
 
-    switch (typer_phase)
-    {
-    case WAITLIST:
-        ArGOS::check_waitlist();
-        break;
-    case IDLE:
-        break;
-    case CONTROL_LOOP:
-        typer_control_loop();
-        break;
-    case DRIVERS:
-        typer_drivers();
-        break;
-    }
+//     switch (typer_phase)
+//     {
+//     case WAITLIST:
+//         ArGOS::check_waitlist();
+//         break;
+//     case IDLE:
+//         break;
+//     case CONTROL_LOOP:
+//         typer_control_loop();
+//         break;
+//     case DRIVERS:
+//         typer_drivers();
+//         break;
+//     }
 
-    if(micros() - time_check > (Ts >> 3))
-        os_error(OS_TYPER_NOT_COOPERATING);
+//     if(micros() - time_check > (Ts >> 3))
+//         os_error(OS_TYPER_NOT_COOPERATING);
 
-    typer_inc();
+//     typer_inc();
 
-    ArGOS::os_stack_restore_SP();
-}
+//     ArGOS::os_stack_restore_SP();
+// }
 
 } // namespace ArGOS

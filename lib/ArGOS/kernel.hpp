@@ -53,6 +53,11 @@ NOINLINE void os_exit(void);
  */
 NOINLINE void os_init();
 
+NOINLINE void waitlist_init();
+NOINLINE void os_create_idle();
+NOINLINE void os_init_core_set();
+NOINLINE void typer_set();
+
 /**
  * @brief Запустить планировщик и передать ему управление
  * 
